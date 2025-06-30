@@ -1,3 +1,5 @@
+// bottom navbar untuk navigasi mobile
+
 <template>
   <nav class="bottom-nav d-md-none">
     <div class="d-flex justify-content-around w-100">
@@ -21,13 +23,8 @@
   </nav>
 </template>
 
-<script setup>
-// Komponen ini tidak memerlukan script khusus
-</script>
-
 <style scoped>
 .nav-link.router-link-exact-active {
   color: #0d6efd;
 }
 </style>
-

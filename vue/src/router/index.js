@@ -9,7 +9,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      // Redirect ke halaman transaksi sebagai halaman utama
+      // push ke halaman transaksi secara default
       redirect: '/transaksi'
     },
     {
@@ -33,7 +33,8 @@ const router = createRouter({
       component: Laporan
     }
   ],
-  // Menambahkan kelas aktif kustom untuk styling link
+  
+  // Menambahkan kelas aktif untuk link
   linkActiveClass: 'active-link'
 })
 

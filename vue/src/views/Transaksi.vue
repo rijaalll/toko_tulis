@@ -83,8 +83,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Menambahkan ref="cartSection" untuk target scroll -->
       <div class="col-lg-5 col-xl-4" ref="cartSection">
         <div class="card shadow mb-4">
           <div class="card-header py-3">
@@ -157,7 +155,7 @@ const cart = ref([]);
 const isProcessing = ref(false);
 const router = useRouter();
 const namaPembeli = ref('');
-const cartSection = ref(null); // Ref untuk elemen keranjang
+const cartSection = ref(null);
 
 const modalState = reactive({
   show: false,
@@ -166,11 +164,9 @@ const modalState = reactive({
   status: 'primary',
 });
 
-// --- FUNGSI BARU UNTUK SCROLL ---
 const scrollToCart = () => {
   cartSection.value?.scrollIntoView({ behavior: 'smooth' });
 };
-// --- AKHIR FUNGSI BARU ---
 
 const showCustomModal = (config) => {
   modalState.title = config.title;
@@ -179,6 +175,7 @@ const showCustomModal = (config) => {
   modalState.show = true;
 };
 
+// Ambil data produk saat komponen dimuat
 const fetchProducts = async () => {
   try {
     loading.value = true;
@@ -192,6 +189,7 @@ const fetchProducts = async () => {
   }
 };
 
+// Filter produk yang tersedia dan tidak tersedia berdasarkan stok dan pencarian
 const filteredAvailableProducts = computed(() => {
   return products.value
     .filter(product => product.stok > 0 && product.nama.toLowerCase().includes(searchQuery.value.toLowerCase()))
@@ -204,6 +202,7 @@ const filteredUnavailableProducts = computed(() => {
     .sort((a, b) => a.nama.localeCompare(b.nama));
 });
 
+// Fungsi untuk menambahkan produk ke keranjang
 const addToCart = (product) => {
   if (product.stok <= 0) {
     showCustomModal({ title: 'Stok Habis', message: 'Produk ini sudah habis.', status: 'warning' });
@@ -222,10 +221,12 @@ const addToCart = (product) => {
   }
 };
 
+// Fungsi untuk menghapus produk dari keranjang
 const removeFromCart = (productId) => {
   cart.value = cart.value.filter(item => item.id !== productId);
 };
 
+// Fungsi untuk meningkatkan atau mengurangi jumlah produk di keranjang
 const increaseQuantity = (item) => {
   const productInStock = products.value.find(p => p.id === item.id);
   if (productInStock && item.jumlah < productInStock.stok) {
@@ -235,6 +236,7 @@ const increaseQuantity = (item) => {
   }
 };
 
+// Fungsi untuk mengurangi jumlah produk di keranjang
 const decreaseQuantity = (item) => {
   if (item.jumlah > 1) {
     item.jumlah--;
@@ -243,10 +245,12 @@ const decreaseQuantity = (item) => {
   }
 };
 
+// Hitung total harga dari semua item di keranjang
 const totalPrice = computed(() => {
   return cart.value.reduce((total, item) => total + (item.harga * item.jumlah), 0);
 });
 
+// Proses transaksi dan kirim data ke server express
 const processTransaction = async () => {
   if (cart.value.length === 0) {
     showCustomModal({ title: 'Keranjang Kosong', message: 'Keranjang belanja Anda masih kosong!', status: 'danger' });

@@ -1,11 +1,10 @@
 const db = require('../db');
 
+// SQL Query untuk menambahkan transaksi
 exports.add = async (tanggal, nama_pelanggan, items) => {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
-    
-    // Jika tanggal tidak diberikan, gunakan tanggal saat ini
     const tanggalTransaksi = tanggal || new Date();
     
     const [result] = await conn.query(
@@ -30,7 +29,7 @@ exports.add = async (tanggal, nama_pelanggan, items) => {
       const subtotal = harga * item.jumlah;
       totalHarga += subtotal;
 
-      // Insert transaksi item
+      // Tambahkan transaksi item
       await conn.query(
         'INSERT INTO transaksi_item (transaksi_id, produk_id, quantity, harga) VALUES (?, ?, ?, ?)',
         [transaksiId, item.id_produk || item.produk_id, item.jumlah, harga]
@@ -53,6 +52,7 @@ exports.add = async (tanggal, nama_pelanggan, items) => {
   }
 };
 
+// SQL Query untuk mengedit transaksi
 exports.edit = async (id, nama_pelanggan, items) => {
   const conn = await db.getConnection();
   try {
@@ -112,8 +112,10 @@ exports.edit = async (id, nama_pelanggan, items) => {
   }
 };
 
+// SQL Query untuk menghapus transaksi
 exports.delete = (id) => db.query('DELETE FROM transaksi WHERE id = ?', [id]);
 
+// SQL Query untuk mengambil transaksi berdasarkan tanggal
 exports.getByDate = (tanggal, bulan, tahun) => {
   return db.query(
     `SELECT * FROM transaksi WHERE DAY(tanggal) = ? AND MONTH(tanggal) = ? AND YEAR(tanggal) = ?`,
@@ -121,6 +123,7 @@ exports.getByDate = (tanggal, bulan, tahun) => {
   );
 };
 
+// SQL Query untuk mengambil produk terlaris
 exports.getTopProduk = () => {
   return db.query(`
     SELECT 
@@ -141,7 +144,7 @@ exports.getTopProduk = () => {
   `);
 };
 
-// Method untuk mengambil semua transaksi dengan detail items (SUDAH DIPERBAIKI)
+// SQL Query untuk mengambil semua transaksi
 exports.getAll = () => {
   return db.query(`
     SELECT 
@@ -172,7 +175,7 @@ exports.getAll = () => {
   `);
 };
 
-// Method untuk laporan harian (7 hari terakhir)
+// SQL Query untuk laporan harian (7 hari terakhir)
 exports.getLaporanHarian = () => {
   return db.query(`
     SELECT 

@@ -1,28 +1,33 @@
 const transaksiModel = require('../models/transaksiModel');
 
+// Fungsi untuk mengunggah gambar ke API eksternal
 exports.add = async (req, res) => {
   const { tanggal, nama_pelanggan, items } = req.body;
   await transaksiModel.add(tanggal, nama_pelanggan, items);
   res.json({ message: 'Transaksi ditambahkan' });
 };
 
+// Fungsi untuk mengedit transaksi
 exports.edit = async (req, res) => {
   const { id, nama_pelanggan, items } = req.body;
   await transaksiModel.edit(id, nama_pelanggan, items);
   res.json({ message: 'Transaksi diubah' });
 };
 
+// Fungsi untuk menghapus transaksi
 exports.delete = async (req, res) => {
   await transaksiModel.delete(req.params.id);
   res.json({ message: 'Transaksi dihapus' });
 };
 
+// Fungsi untuk mengambil transaksi berdasarkan tanggal
 exports.getByDate = async (req, res) => {
   const { tanggal, bulan, tahun } = req.params;
   const [rows] = await transaksiModel.getByDate(tanggal, bulan, tahun);
   res.json(rows);
 };
 
+// Fungsi untuk mengambil produk terlaris
 exports.getTopProduk = async (req, res) => {
   try {
     const [rows] = await transaksiModel.getTopProduk();
@@ -32,7 +37,7 @@ exports.getTopProduk = async (req, res) => {
   }
 };
 
-// Tambahan endpoint untuk mengambil semua transaksi
+// Fungsi untuk mengambil semua transaksi
 exports.getAll = async (req, res) => {
   try {
     const [rows] = await transaksiModel.getAll();
@@ -42,7 +47,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
-// Endpoint untuk laporan harian (7 hari terakhir)
+// Fungsi untuk mengambil laporan harian (7 hari terakhir)
 exports.getLaporanHarian = async (req, res) => {
   try {
     const [rows] = await transaksiModel.getLaporanHarian();

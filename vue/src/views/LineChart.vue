@@ -1,3 +1,5 @@
+// Komponen Vue untuk menampilkan grafik Garis menggunakan vue-chartjs
+
 <template>
   <Line :data="chartData" :options="chartOptions" />
 </template>
@@ -46,4 +48,3 @@ const chartOptions = {
   }
 };
 </script>
-

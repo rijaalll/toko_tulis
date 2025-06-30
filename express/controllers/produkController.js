@@ -4,7 +4,7 @@ const fs = require('fs');
 const FormData = require('form-data');
 const path = require('path');
 
-// Fungsi untuk mengunggah gambar ke layanan eksternal
+// Fungsi untuk mengunggah gambar ke API eksternal
 const uploadImage = async (filePath) => {
   const form = new FormData();
   form.append('images', fs.createReadStream(filePath));
@@ -26,7 +26,7 @@ exports.add = async (req, res) => {
     if (req.file) {
       try {
         imageUrl = await uploadImage(req.file.path);
-        fs.unlinkSync(req.file.path); // hapus file lokal setelah diunggah
+        fs.unlinkSync(req.file.path);
       } catch (err) {
         return res.status(500).json({ message: 'Gagal upload gambar', error: err.message });
       }
@@ -44,26 +44,18 @@ exports.edit = async (req, res) => {
   try {
     const id = req.params.id || req.body.id;
     const { nama, harga, stok } = req.body;
-    
-    // --- PERUBAHAN DI SINI ---
-    // Inisialisasi imageUrl dengan URL yang ada dari body.
-    // Ini akan ada jika frontend mengirimkannya (saat tidak ada gambar baru).
+
     let imageUrl = req.body.image_url;
 
-    // Jika ada file baru yang diunggah, proses file tersebut.
     if (req.file) {
       try {
-        // Unggah gambar baru dan perbarui imageUrl
         imageUrl = await uploadImage(req.file.path);
-        // Hapus file sementara dari server
         fs.unlinkSync(req.file.path);
       } catch (err) {
         return res.status(500).json({ message: 'Gagal upload gambar baru', error: err.message });
       }
     }
-    // --- AKHIR PERUBAHAN ---
 
-    // Panggil model untuk memperbarui database dengan data yang benar
     await produkModel.edit(id, nama, harga, stok, imageUrl);
     res.json({ message: 'Produk berhasil diubah' });
   } catch (err) {

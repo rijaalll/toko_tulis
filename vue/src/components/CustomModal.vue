@@ -42,7 +42,7 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: 'alert', // 'alert' or 'confirm'
+    default: 'alert',
   },
   title: {
     type: String,
@@ -62,7 +62,7 @@ const props = defineProps({
   },
   status: {
     type: String,
-    default: 'primary' // 'primary', 'danger', 'success'
+    default: 'primary'
   }
 });
 
@@ -81,7 +81,7 @@ const confirmButtonClass = computed(() => {
 
 function confirmAction() {
   emit('confirm');
-  emit('close'); // Tutup modal setelah konfirmasi
+  emit('close');
 }
 
 function close() {
@@ -100,7 +100,7 @@ function close() {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1050; /* Pastikan di atas elemen lain */
+  z-index: 1050;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -142,7 +142,7 @@ function close() {
   border-top: 1px solid #dee2e6;
 }
 
-/* Transisi Fade */
+/* Transisi */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;

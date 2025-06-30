@@ -52,11 +52,12 @@
 import { ref, onMounted, reactive } from 'vue';
 import ApiService from '../services/ApiService';
 import LineChart from './LineChart.vue';
-import DoughnutChart from './DoughnutChart.vue'; // Menggunakan Doughnut untuk variasi
+import DoughnutChart from './DoughnutChart.vue'; // impor Doughnut chart-js
 
 const loading = ref(true);
 const error = ref(null);
 
+// Data untuk chart laporan harian
 const laporanHarianData = reactive({
   labels: [],
   datasets: [
@@ -71,6 +72,7 @@ const laporanHarianData = reactive({
   ]
 });
 
+// Data untuk chart produk terlaris
 const produkTerlarisData = reactive({
   labels: [],
   datasets: [
@@ -87,14 +89,14 @@ const fetchData = async () => {
     loading.value = true;
     error.value = null;
 
-    // Fetch Laporan Harian
+    // Ambil data Laporan Harian
     const harianRes = await ApiService.getLaporanHarian();
     if (harianRes.data && harianRes.data.length > 0) {
       laporanHarianData.labels = harianRes.data.map(d => new Date(d.tanggal).toLocaleDateString('id-ID', {day: '2-digit', month: 'short'}));
       laporanHarianData.datasets[0].data = harianRes.data.map(d => d.total_penjualan);
     }
     
-    // Fetch Produk Terlaris
+    // Ambil data Produk Terlaris
     const terlarisRes = await ApiService.getProdukTerlaris();
     if (terlarisRes.data && terlarisRes.data.length > 0) {
       produkTerlarisData.labels = terlarisRes.data.map(p => p.nama);

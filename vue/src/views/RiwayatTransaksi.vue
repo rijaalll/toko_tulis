@@ -37,7 +37,7 @@
                 <div class="accordion-body">
                   <div class="mb-3">
                     <strong>Informasi Transaksi:</strong>
-                    <p class="mb-1"><small class="text-muted">Tanggal: {{ formatDate(transaction.tanggal) }}</small></p>
+                    <p class="mb-1"><small class="text-muted">Tanggal: {{ formatFullDate(transaction.tanggal) }}</small></p>
                     <p class="mb-1"><small class="text-muted">Pelanggan: {{ transaction.nama_pelanggan || 'Customer' }}</small></p>
                   </div>
                   <strong>Detail Item:</strong>
@@ -90,11 +90,11 @@ const transactions = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
+// Fungsi untuk mengambil data transaksi dari API
 const fetchTransactions = async () => {
   try {
     loading.value = true;
     const response = await ApiService.getTransaksi();
-    // Urutkan transaksi dari yang terbaru dan parse items jika berupa string
     transactions.value = response.data.map(transaction => ({
       ...transaction,
       items: typeof transaction.items === 'string' ? JSON.parse(transaction.items) : transaction.items
@@ -107,38 +107,42 @@ const fetchTransactions = async () => {
   }
 };
 
+// Helper functions untuk mengelola data transaksi
 const getTransactionItems = (transaction) => {
   if (!transaction.items) return [];
   
-  // Jika items berupa string JSON, parse dulu
   let items = typeof transaction.items === 'string' ? JSON.parse(transaction.items) : transaction.items;
-  
-  // Pastikan items adalah array
   if (!Array.isArray(items)) return [];
   
   return items;
 };
 
+
+// Helper functions untuk mendapatkan nama dan gambar produk
 const getProductName = (item) => {
   if (item.produk && item.produk.nama) return item.produk.nama;
   if (item.nama) return item.nama;
   return 'Produk Tidak Diketahui';
 };
 
+// Helper function untuk mendapatkan URL gambar produk
 const getProductImage = (item) => {
   if (item.produk && item.produk.image_url) return item.produk.image_url;
   if (item.image_url) return item.image_url;
   return 'https://via.placeholder.com/50x50?text=No+Image';
 };
 
+// Handler untuk menangani error pada gambar produk
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/50x50?text=No+Image';
 };
 
+// Helper function untuk format mata uang
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
 };
 
+// Helper function untuk format tanggal
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
@@ -184,6 +188,17 @@ const formatDate = (dateString) => {
   return fullDateFormat;
 };
 
+// Helper function untuk format tanggal lengkap
+const formatFullDate = (dateString) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
 
 onMounted(fetchTransactions);
 </script>

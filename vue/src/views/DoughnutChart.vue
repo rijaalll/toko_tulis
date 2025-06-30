@@ -1,3 +1,5 @@
+// Komponen Vue untuk menampilkan grafik Doughnut menggunakan vue-chartjs
+
 <template>
   <Doughnut :data="chartData" :options="chartOptions" />
 </template>

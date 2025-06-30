@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const transaksiController = require('../controllers/transaksiController');
 
+// API Routes untuk Transaksi
 router.get('/all', transaksiController.getAll);
 router.post('/add', transaksiController.add);
 router.put('/edit', transaksiController.edit);

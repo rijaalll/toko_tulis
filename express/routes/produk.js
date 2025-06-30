@@ -4,6 +4,7 @@ const produkController = require('../controllers/produkController');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
+// API Routes untuk Produk
 router.get('/all', produkController.getAll);
 router.get('/:id', produkController.getById);
 router.get('/search/:param', produkController.search);

@@ -1,3 +1,5 @@
+// tampilan sidebar untuk navigasi Desktop
+
 <template>
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -34,12 +36,7 @@
   </div>
 </template>
 
-<script setup>
-// Komponen ini tidak memerlukan script khusus
-</script>
-
 <style scoped>
-/* Override default active class jika perlu */
 .nav-pills .nav-link.router-link-exact-active {
   background-color: #0d6efd;
 }

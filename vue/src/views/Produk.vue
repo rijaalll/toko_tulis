@@ -271,9 +271,7 @@ const handleSubmit = async () => {
   formData.append('nama', form.nama);
   formData.append('harga', form.harga);
   formData.append('stok', form.stok);
-  
-  // --- PERUBAHAN DI SINI ---
-  // Jika sedang mode edit dan tidak ada gambar baru, kirim URL gambar yang lama
+
   if (isEditMode.value && !selectedImage.value) {
     formData.append('image_url', form.image_url);
   }
@@ -281,15 +279,12 @@ const handleSubmit = async () => {
   if (selectedImage.value) {
     formData.append('image', selectedImage.value);
   }
-  // --- AKHIR PERUBAHAN ---
 
   try {
     let response;
     if (isEditMode.value) {
-      // Kirim sebagai PUT request
       response = await ApiService.updateProduk(form.id, formData);
     } else {
-      // Kirim sebagai POST request
       response = await ApiService.createProduk(formData);
     }
     productModal.hide();
