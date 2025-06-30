@@ -22,22 +22,56 @@
               <h2 class="accordion-header" :id="'heading' + index">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapse' + index" aria-expanded="false" :aria-controls="'collapse' + index">
                   <div class="d-flex justify-content-between w-100 pe-3">
-                    <span>Transaksi #{{ transaction.id }}</span>
-                    <span class="fw-bold text-success">{{ formatCurrency(transaction.total_harga) }}</span>
-                    <span class="text-muted">{{ formatDate(transaction.tanggal_transaksi) }}</span>
+                    <div class="d-flex flex-column align-items-start">
+                      <span class="fw-bold">Transaksi #{{ transaction.id }}</span>
+                      <small class="text-muted">{{ transaction.nama_pelanggan || 'Customer' }}</small>
+                    </div>
+                    <div class="d-flex flex-column align-items-end">
+                      <span class="fw-bold text-success">{{ formatCurrency(transaction.total_harga) }}</span>
+                      <small class="text-muted">{{ formatDate(transaction.tanggal) }}</small>
+                    </div>
                   </div>
                 </button>
               </h2>
               <div :id="'collapse' + index" class="accordion-collapse collapse" :aria-labelledby="'heading' + index" data-bs-parent="#accordionTransactions">
                 <div class="accordion-body">
+                  <div class="mb-3">
+                    <strong>Informasi Transaksi:</strong>
+                    <p class="mb-1"><small class="text-muted">Tanggal: {{ formatDate(transaction.tanggal) }}</small></p>
+                    <p class="mb-1"><small class="text-muted">Pelanggan: {{ transaction.nama_pelanggan || 'Customer' }}</small></p>
+                  </div>
                   <strong>Detail Item:</strong>
-                  <ul class="list-group mt-2">
-                    <li v-for="item in transaction.items" :key="item.id" class="list-group-item d-flex justify-content-between align-items-center">
-                      <span>{{ item.produk.nama }}</span>
-                      <span>{{ item.jumlah }} x {{ formatCurrency(item.harga_saat_transaksi) }}</span>
-                      <span class="fw-bold">{{ formatCurrency(item.jumlah * item.harga_saat_transaksi) }}</span>
-                    </li>
-                  </ul>
+                  <div class="row mt-2">
+                    <div v-for="item in getTransactionItems(transaction)" :key="item.id || item.produk_id" class="col-12 mb-2">
+                      <div class="card">
+                        <div class="card-body p-2">
+                          <div class="row align-items-center">
+                            <div class="col-2">
+                              <img 
+                                :src="getProductImage(item)" 
+                                :alt="getProductName(item)"
+                                class="img-fluid rounded"
+                                style="width: 50px; height: 50px; object-fit: cover;"
+                                @error="handleImageError"
+                              >
+                            </div>
+                            <div class="col-6">
+                              <h6 class="mb-1">{{ getProductName(item) }}</h6>
+                              <small class="text-muted">{{ item.jumlah || item.quantity }} x {{ formatCurrency(item.harga_saat_transaksi || item.harga) }}</small>
+                            </div>
+                            <div class="col-4 text-end">
+                              <span class="fw-bold">{{ formatCurrency((item.jumlah || item.quantity) * (item.harga_saat_transaksi || item.harga)) }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="d-flex justify-content-between">
+                    <strong>Total Transaksi:</strong>
+                    <strong class="text-success">{{ formatCurrency(transaction.total_harga) }}</strong>
+                  </div>
                 </div>
               </div>
             </div>
@@ -60,8 +94,11 @@ const fetchTransactions = async () => {
   try {
     loading.value = true;
     const response = await ApiService.getTransaksi();
-    // Urutkan transaksi dari yang terbaru
-    transactions.value = response.data.sort((a, b) => new Date(b.tanggal_transaksi) - new Date(a.tanggal_transaksi));
+    // Urutkan transaksi dari yang terbaru dan parse items jika berupa string
+    transactions.value = response.data.map(transaction => ({
+      ...transaction,
+      items: typeof transaction.items === 'string' ? JSON.parse(transaction.items) : transaction.items
+    })).sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
   } catch (err) {
     error.value = 'Gagal memuat riwayat transaksi.';
     console.error(err);
@@ -70,14 +107,90 @@ const fetchTransactions = async () => {
   }
 };
 
+const getTransactionItems = (transaction) => {
+  if (!transaction.items) return [];
+  
+  // Jika items berupa string JSON, parse dulu
+  let items = typeof transaction.items === 'string' ? JSON.parse(transaction.items) : transaction.items;
+  
+  // Pastikan items adalah array
+  if (!Array.isArray(items)) return [];
+  
+  return items;
+};
+
+const getProductName = (item) => {
+  if (item.produk && item.produk.nama) return item.produk.nama;
+  if (item.nama) return item.nama;
+  return 'Produk Tidak Diketahui';
+};
+
+const getProductImage = (item) => {
+  if (item.produk && item.produk.image_url) return item.produk.image_url;
+  if (item.image_url) return item.image_url;
+  return 'https://via.placeholder.com/50x50?text=No+Image';
+};
+
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/50x50?text=No+Image';
+};
+
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
 };
 
 const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return new Date(dateString).toLocaleDateString('id-ID', options);
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const diffMs = now - date;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  const transactionDate = new Date(date);
+  transactionDate.setHours(0, 0, 0, 0);
+
+  const timeOnly = new Intl.DateTimeFormat('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+
+  const fullDateFormat = new Intl.DateTimeFormat('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+
+  if (transactionDate.getTime() === today.getTime()) {
+    if (diffMin < 1) return 'Baru saja';
+    if (diffMin < 60) return `${diffMin} menit lalu`;
+    if (diffHour < 12) return `${diffHour} jam lalu`;
+    return `Hari ini, ${timeOnly}`;
+  }
+
+  if (transactionDate.getTime() === yesterday.getTime()) {
+    return `Kemarin, ${timeOnly}`;
+  }
+
+  return fullDateFormat;
 };
+
 
 onMounted(fetchTransactions);
 </script>
+
+<style scoped>
+.accordion-button:not(.collapsed) {
+  background-color: #e3f2fd;
+  border-color: #bbdefb;
+}
+</style>

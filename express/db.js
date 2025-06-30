@@ -1,3 +1,5 @@
+// file konfigurasi untuk menghubungkan aplikasi Express dengan database MySQL
+
 require('dotenv').config();
 const mysql = require('mysql2');
 

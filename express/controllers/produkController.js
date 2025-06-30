@@ -4,6 +4,7 @@ const fs = require('fs');
 const FormData = require('form-data');
 const path = require('path');
 
+// Fungsi untuk mengunggah gambar ke layanan eksternal
 const uploadImage = async (filePath) => {
   const form = new FormData();
   form.append('images', fs.createReadStream(filePath));
@@ -13,9 +14,10 @@ const uploadImage = async (filePath) => {
   });
 
   const filename = response.data.filename;
-  return `http://api.rpnza.my.id/get/${filename}`;
+  return `http://image.rpnza.my.id/get/${filename}`;
 };
 
+// Menambahkan produk baru
 exports.add = async (req, res) => {
   try {
     const { nama, harga, stok } = req.body;
@@ -24,41 +26,52 @@ exports.add = async (req, res) => {
     if (req.file) {
       try {
         imageUrl = await uploadImage(req.file.path);
-        fs.unlinkSync(req.file.path); // hapus file lokal
+        fs.unlinkSync(req.file.path); // hapus file lokal setelah diunggah
       } catch (err) {
         return res.status(500).json({ message: 'Gagal upload gambar', error: err.message });
       }
     }
 
     await produkModel.add(nama, harga, stok, imageUrl);
-    res.json({ message: 'Produk ditambahkan' });
+    res.json({ message: 'Produk berhasil ditambahkan' });
   } catch (err) {
     res.status(500).json({ message: 'Gagal menambahkan produk', error: err.message });
   }
 };
 
+// Mengedit produk yang ada
 exports.edit = async (req, res) => {  
   try {
     const id = req.params.id || req.body.id;
     const { nama, harga, stok } = req.body;
+    
+    // --- PERUBAHAN DI SINI ---
+    // Inisialisasi imageUrl dengan URL yang ada dari body.
+    // Ini akan ada jika frontend mengirimkannya (saat tidak ada gambar baru).
     let imageUrl = req.body.image_url;
 
+    // Jika ada file baru yang diunggah, proses file tersebut.
     if (req.file) {
       try {
+        // Unggah gambar baru dan perbarui imageUrl
         imageUrl = await uploadImage(req.file.path);
+        // Hapus file sementara dari server
         fs.unlinkSync(req.file.path);
       } catch (err) {
-        return res.status(500).json({ message: 'Gagal upload gambar', error: err.message });
+        return res.status(500).json({ message: 'Gagal upload gambar baru', error: err.message });
       }
     }
+    // --- AKHIR PERUBAHAN ---
 
+    // Panggil model untuk memperbarui database dengan data yang benar
     await produkModel.edit(id, nama, harga, stok, imageUrl);
-    res.json({ message: 'Produk diubah' });
+    res.json({ message: 'Produk berhasil diubah' });
   } catch (err) {
     res.status(500).json({ message: 'Gagal mengubah produk', error: err.message });
   }
 };
 
+// Mendapatkan semua produk
 exports.getAll = async (req, res) => {
   try {
     const [rows] = await produkModel.getAll();
@@ -68,6 +81,7 @@ exports.getAll = async (req, res) => {
   }
 };
 
+// Mendapatkan produk berdasarkan ID
 exports.getById = async (req, res) => {
   try {
     const [rows] = await produkModel.getById(req.params.id);
@@ -80,6 +94,7 @@ exports.getById = async (req, res) => {
   }
 };
 
+// Mencari produk
 exports.search = async (req, res) => {
   try {
     const param = req.params.param;
@@ -90,12 +105,14 @@ exports.search = async (req, res) => {
   }
 };
 
+// Menghapus produk
 exports.delete = async (req, res) => {
   try {
     const id = req.params.id;
     await produkModel.delete(id);
-    res.json({ message: 'Produk dihapus' });
-  } catch (err) {
+    res.json({ message: 'Produk berhasil dihapus' });
+  } catch (err)
+    {
     res.status(500).json({ message: 'Gagal menghapus produk', error: err.message });
   }
 };

@@ -15,7 +15,3 @@
 import Sidebar from './components/Sidebar.vue';
 import BottomNav from './components/BottomNav.vue';
 </script>
-
-<style scoped>
-/* Scoped styles jika diperlukan */
-</style>

@@ -1,5 +1,6 @@
 body {
   background-color: #f8f9fa;
+  overflow-x: hidden;
 }
 
 #app {
@@ -38,7 +39,7 @@ body {
 .main-content {
   flex-grow: 1;
   padding: 1.5rem;
-  padding-bottom: 80px; /* Ruang untuk bottom nav di mobile */
+  padding-bottom: 80px;
 }
 
 .bottom-nav {
@@ -69,6 +70,11 @@ body {
 @media (min-width: 768px) {
   .main-content {
     padding-bottom: 1.5rem; /* Hapus padding bawah di desktop */
+      position: absolute;
+      left: 250px;
+      width: calc(100% - 250px);
+      min-height: 100dvh;
+      height: auto;
   }
 }
 

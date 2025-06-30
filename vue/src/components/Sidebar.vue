@@ -2,7 +2,7 @@
   <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white bg-dark">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
       <i class="bi bi-shop-window fs-4 me-2"></i>
-      <span class="fs-4">Kasir App</span>
+      <span class="fs-4">Toko Alat Tulis</span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
@@ -42,6 +42,10 @@
 /* Override default active class jika perlu */
 .nav-pills .nav-link.router-link-exact-active {
   background-color: #0d6efd;
+}
+.sidebar {
+  height: 100dvh;
+  position: fixed;
 }
 </style>
 

@@ -1,3 +1,5 @@
+// file utama untuk menginisialisasi server Express dan mengatur routing
+
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -18,5 +20,5 @@ app.use('/produk', produkRoutes);
 app.use('/transaksi', transaksiRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`API berjalan di http://localhost:${PORT}`);
 });
