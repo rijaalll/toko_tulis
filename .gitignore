@@ -1,0 +1,11 @@
+dbSchema.sql
+images/
+
+# Ignore express directory
+express/node_modules
+express/.env
+
+#ignore vue directory
+vue/node_modules
+vue/dist
+vue/.env
