@@ -1,10 +1,12 @@
 const db = require('../db');
 
-exports.getAll = () => db.query('SELECT * FROM produk');
+exports.getAll = () => db.query('SELECT * FROM produk ORDER BY nama');
+
+exports.getById = (id) => db.query('SELECT * FROM produk WHERE id = ?', [id]);
 
 exports.search = (param) => {
   return db.query(
-    `SELECT * FROM produk WHERE id = ? OR nama LIKE ? OR harga = ?`,
+    `SELECT * FROM produk WHERE id = ? OR nama LIKE ? OR harga = ? ORDER BY nama`,
     [param, `%${param}%`, param]
   );
 };

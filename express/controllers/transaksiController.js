@@ -31,3 +31,23 @@ exports.getTopProduk = async (req, res) => {
     res.status(500).json({ message: 'Gagal mengambil produk terlaris', error: err.message });
   }
 };
+
+// Tambahan endpoint untuk mengambil semua transaksi
+exports.getAll = async (req, res) => {
+  try {
+    const [rows] = await transaksiModel.getAll();
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Gagal mengambil data transaksi', error: err.message });
+  }
+};
+
+// Endpoint untuk laporan harian (7 hari terakhir)
+exports.getLaporanHarian = async (req, res) => {
+  try {
+    const [rows] = await transaksiModel.getLaporanHarian();
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Gagal mengambil laporan harian', error: err.message });
+  }
+};
