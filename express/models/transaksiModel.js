@@ -92,3 +92,4 @@ exports.getTopProduk = () => {
     LIMIT 10
   `);
 };
+
