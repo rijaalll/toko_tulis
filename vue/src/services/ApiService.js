@@ -22,22 +22,21 @@ export default {
     return apiClient.get(`/produk/${id}`);
   },
 
+  // --- PERUBAHAN DI SINI ---
   // Endpoints API untuk menambah produk
   createProduk(data) {
-    // Jika data berupa FormData, hapus Content-Type header
-    const config = data instanceof FormData ? {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    } : {};
-    return apiClient.post('/produk', data, config);
+    // Saat mengirim FormData, kita tidak perlu mengatur header Content-Type.
+    // Axios akan secara otomatis mengaturnya ke 'multipart/form-data' dengan boundary yang benar.
+    return apiClient.post('/produk/add', data);
   },
 
   // Endpoints API untuk mengupdate produk
   updateProduk(id, data) {
-    const config = data instanceof FormData ? {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    } : {};
-    return apiClient.put(`/produk/${id}`, data, config);
+    // Sama seperti create, biarkan Axios yang mengatur header untuk FormData.
+    // Hapus objek config header manual.
+    return apiClient.post(`/produk/update/${id}`, data);
   },
+  // --- AKHIR PERUBAHAN ---
 
   // Endpoints API untuk menghapus produk
   deleteProduk(id) {

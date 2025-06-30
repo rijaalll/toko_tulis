@@ -1,40 +1,24 @@
 const produkModel = require('../models/produkModel');
-const axios = require('axios');
-const fs = require('fs');
-const FormData = require('form-data');
-const path = require('path');
-
-// Fungsi untuk mengunggah gambar ke API eksternal
-const uploadImage = async (filePath) => {
-  const form = new FormData();
-  form.append('images', fs.createReadStream(filePath));
-
-  const response = await axios.post('http://image.rpnza.my.id/upload', form, {
-    headers: form.getHeaders(),
-  });
-
-  const filename = response.data.filename;
-  return `http://image.rpnza.my.id/get/${filename}`;
-};
 
 // Menambahkan produk baru
 exports.add = async (req, res) => {
   try {
     const { nama, harga, stok } = req.body;
-    let imageUrl = null;
+    let imageUrl = null; // Default URL gambar adalah null
 
+    // Jika ada file yang diunggah (req.file akan ada berkat multer)
     if (req.file) {
-      try {
-        imageUrl = await uploadImage(req.file.path);
-        fs.unlinkSync(req.file.path);
-      } catch (err) {
-        return res.status(500).json({ message: 'Gagal upload gambar', error: err.message });
-      }
+      // Dapatkan port dari environment variable atau gunakan 3000
+      const port = process.env.API_PORT || 3000;
+      // Buat URL lengkap untuk mengakses gambar
+      imageUrl = `http://127.0.0.1:${port}/image/get/${req.file.filename}`;
     }
 
+    // Panggil model untuk menyimpan data produk ke database
     await produkModel.add(nama, harga, stok, imageUrl);
     res.json({ message: 'Produk berhasil ditambahkan' });
   } catch (err) {
+    console.error('Error adding product:', err);
     res.status(500).json({ message: 'Gagal menambahkan produk', error: err.message });
   }
 };
@@ -42,23 +26,23 @@ exports.add = async (req, res) => {
 // Mengedit produk yang ada
 exports.edit = async (req, res) => {  
   try {
-    const id = req.params.id || req.body.id;
+    const { id } = req.params;
     const { nama, harga, stok } = req.body;
 
+    // Secara default, gunakan URL gambar yang sudah ada
     let imageUrl = req.body.image_url;
 
+    // Jika ada file baru yang diunggah, perbarui URL gambarnya
     if (req.file) {
-      try {
-        imageUrl = await uploadImage(req.file.path);
-        fs.unlinkSync(req.file.path);
-      } catch (err) {
-        return res.status(500).json({ message: 'Gagal upload gambar baru', error: err.message });
-      }
+      const port = process.env.API_PORT || 3000;
+      imageUrl = `http://127.0.0.1:${port}/image/get/${req.file.filename}`;
     }
 
+    // Panggil model untuk mengubah data produk di database
     await produkModel.edit(id, nama, harga, stok, imageUrl);
     res.json({ message: 'Produk berhasil diubah' });
   } catch (err) {
+    console.error(`Error editing product ${req.params.id}:`, err);
     res.status(500).json({ message: 'Gagal mengubah produk', error: err.message });
   }
 };
@@ -103,8 +87,7 @@ exports.delete = async (req, res) => {
     const id = req.params.id;
     await produkModel.delete(id);
     res.json({ message: 'Produk berhasil dihapus' });
-  } catch (err)
-    {
+  } catch (err) {
     res.status(500).json({ message: 'Gagal menghapus produk', error: err.message });
   }
 };
